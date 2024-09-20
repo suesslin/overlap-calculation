@@ -71,7 +71,9 @@ executable overlap
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.20.0.0
+    build-depends:    base ^>=4.20.0.0,
+                      aeson == 2.2.3.0,
+                      text == 2.1.1
 
     -- Directories containing source files.
     hs-source-dirs:   app
