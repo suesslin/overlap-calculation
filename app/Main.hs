@@ -1,11 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 module Main where    
 
 import System.IO
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Aeson
-
+import Data.Aeson.Types (typeMismatch)
+import qualified Data.ByteString.Lazy as B
 
 data LayoutType = Baseline | RV | RH deriving (Show, Eq)
 instance FromJSON LayoutType where
@@ -25,7 +28,14 @@ instance FromJSON TracesDisplayingCondition where
     parseJSON _ = fail "Couldn't parse TracesDisplayingCondition"
 type Dimension = (Int, Int)
 
-type Coordinate = (Int, Int)
+-- No FromJSON instance implementation needed because aeson handles tuples
+newtype Coordinate = Coordinate (Int, Int)
+  deriving (Show)
+
+instance FromJSON Coordinate where
+    parseJSON (Object v) =
+        Coordinate <$> ((,) <$> v .: "x" <*> v .: "y")
+    parseJSON _ = fail "Couldn't parse Coordinate"
 
 data TouchPoint = TouchPoint
     { coordinate  :: Coordinate
@@ -36,25 +46,24 @@ data TouchPoint = TouchPoint
 
 instance FromJSON TouchPoint where
     parseJSON (Object v) = 
-        TouchPoint <$> v .: "coordinate"
+        TouchPoint <$> v .: "coordinates"
                    <*> v .: "timestamp"
                    <*> v .: "currentPage"
                    <*> v .: "triggerId"
     parseJSON _ = fail "Couldn't parse TouchPoint"
 
-data Cart = Cart
+data Item = Item
     { title  :: Text
     , amount :: Int
     , entity :: Double
     } deriving (Show)
 
-instance FromJSON Cart where
+instance FromJSON Item where
     parseJSON (Object v) = 
-        Cart <$> v .: "title"
+        Item <$> v .: "title"
              <*> v .: "amount"
-             <*> v .: "entity"
-    parseJSON _ = fail "Couldn't parse Cart"
-
+             <*> v .: "entityPrice"
+    parseJSON invalid = typeMismatch "Object" invalid
 
 data Condition = Condition
     { layoutType                :: LayoutType
@@ -72,10 +81,9 @@ data Interview = Interview
  , condition    :: Condition
  , touchPoints  :: [TouchPoint]
  , taskNr       :: Int
- , cart         :: Cart
+ , cart         :: [Item]
 } deriving (Show)
 
--- .: stems from aeson package, takes an object and a key and returns a parser
 instance FromJSON Interview where
     parseJSON (Object v) = 
         Interview <$> v .: "interviewId"
@@ -87,11 +95,10 @@ instance FromJSON Interview where
 
 main :: IO ()
 main = do
-    doReadFile "data/interview-article69_with_traces-traces_rearrangement-baseline_task-1.json"
-
-
-doReadFile :: FilePath -> IO ()
-doReadFile path = do
-    handle <- openFile path ReadMode
-    contents <- hGetContents handle
-    putStrLn contents
+    jsonData <- B.readFile "data/interview-article69_with_traces-traces_rearrangement-baseline_task-1.json"
+    
+    let maybeInterview = eitherDecode jsonData :: Either String Interview
+    
+    case maybeInterview of
+        Right interview -> print interview
+        Left err        -> putStrLn $ "There's an error: " ++ err

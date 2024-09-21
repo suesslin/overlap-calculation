@@ -30,6 +30,16 @@
   (major1) == 4 && (major2) <  20 || \
   (major1) == 4 && (major2) == 20 && (minor) <= 0)
 #endif /* MIN_VERSION_base */
+/* package bytestring-0.12.1.0 */
+#ifndef VERSION_bytestring
+#define VERSION_bytestring "0.12.1.0"
+#endif /* VERSION_bytestring */
+#ifndef MIN_VERSION_bytestring
+#define MIN_VERSION_bytestring(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  12 || \
+  (major1) == 0 && (major2) == 12 && (minor) <= 1)
+#endif /* MIN_VERSION_bytestring */
 /* package text-2.1.1 */
 #ifndef VERSION_text
 #define VERSION_text "2.1.1"
