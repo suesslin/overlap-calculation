@@ -1,9 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
 module Main where    
 
-import System.IO
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Aeson
@@ -11,7 +9,6 @@ import Data.Aeson.Types (typeMismatch)
 import qualified Data.ByteString.Lazy as B
 import Data.List (isSuffixOf)
 import System.Directory
-import Data.Either (isRight, fromRight)
 
 data LayoutType = Baseline | RV | RH deriving (Show, Eq)
 instance FromJSON LayoutType where
