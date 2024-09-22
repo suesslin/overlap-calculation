@@ -10,7 +10,7 @@ import qualified Data.ByteString.Lazy as B
 import Data.List (isSuffixOf)
 import System.Directory
 
-import Data.QuadTree (makeTree, setLocation)
+import Data.QuadTree (makeTree, setLocation, fuseTree, tile)
 
 data LayoutType = Baseline | RV | RH deriving (Show, Eq)
 instance FromJSON LayoutType where
@@ -97,26 +97,27 @@ instance FromJSON Interview where
 
 main :: IO ()
 main = do
-    jsonData <- B.readFile "data/interview-article69_with_traces-traces_rearrangement-baseline_task-1.json"
-    
     files <- listDirectory "data"
     let jsonFiles = fmap ((++) "data/") $ filter (isSuffixOf ".json") files
 
-    let maybeInterview = eitherDecode jsonData :: Either String Interview
     maybeInterviews <- mapM decodeInterview $ jsonFiles
     
     let interviews = [i | Right i <- maybeInterviews]
-    print interviews
 
-    let test = setLocation (5,5) 'c' $ makeTree (6,6) '.'
+    let filterLayout = Baseline
+    let filterTracesCondition = WithoutTraces
 
-    print test
+    -- All touch points for one given condition
+    let interviewsOfOneCondition = filter (\i -> layoutType (condition i) == filterLayout && tracesDisplayingCondition (condition i) == filterTracesCondition) interviews
+   
+    let allTouchPointCoords = concatMap (map coordinate . touchPoints) interviewsOfOneCondition
 
-    putStrLn "=======\n\n\n"
+    -- mapM_ putStrLn $ map (\(Coordinate coord) -> show coord) allTouchPointCoords
 
-    case maybeInterview of
-        Right interview -> print interview
-        Left err        -> putStrLn $ "There's an error: " ++ err
+    let tree = foldl (\t (Coordinate coord) -> setLocation coord True t) (makeTree (1920,1080) False) allTouchPointCoords
+    let fusedTree = fuseTree tree
+
+    mapM_ print $ tile fusedTree
 
 decodeInterview :: FilePath -> IO (Either String Interview)
 decodeInterview path = do
