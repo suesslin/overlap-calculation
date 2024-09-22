@@ -10,6 +10,16 @@
   (major1) == 0 && (major2) <  1 || \
   (major1) == 0 && (major2) == 1 && (minor) <= 0)
 #endif /* MIN_VERSION_overlap */
+/* package QuadTree-0.11.0 */
+#ifndef VERSION_QuadTree
+#define VERSION_QuadTree "0.11.0"
+#endif /* VERSION_QuadTree */
+#ifndef MIN_VERSION_QuadTree
+#define MIN_VERSION_QuadTree(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  11 || \
+  (major1) == 0 && (major2) == 11 && (minor) <= 0)
+#endif /* MIN_VERSION_QuadTree */
 /* package aeson-2.2.3.0 */
 #ifndef VERSION_aeson
 #define VERSION_aeson "2.2.3.0"

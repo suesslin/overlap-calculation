@@ -10,6 +10,8 @@ import qualified Data.ByteString.Lazy as B
 import Data.List (isSuffixOf)
 import System.Directory
 
+import Data.QuadTree (makeTree, setLocation)
+
 data LayoutType = Baseline | RV | RH deriving (Show, Eq)
 instance FromJSON LayoutType where
     parseJSON (String s) = case s of 
@@ -105,7 +107,13 @@ main = do
     
     let interviews = [i | Right i <- maybeInterviews]
     print interviews
-    
+
+    let test = setLocation (5,5) 'c' $ makeTree (6,6) '.'
+
+    print test
+
+    putStrLn "=======\n\n\n"
+
     case maybeInterview of
         Right interview -> print interview
         Left err        -> putStrLn $ "There's an error: " ++ err

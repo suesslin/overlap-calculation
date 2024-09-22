@@ -54,6 +54,15 @@ extra-doc-files:    CHANGELOG.md
 -- Extra source files to be distributed with the package, such as examples, or a tutorial module.
 -- extra-source-files:
 
+packages: .
+
+source-repository-package:
+    type: git
+    location: https://github.com/schell/QuadTree
+    commit: bd11166
+
+allow-newer: base
+
 common warnings
     ghc-options: -Wall
 
@@ -75,7 +84,10 @@ executable overlap
                       aeson == 2.2.3.0,
                       text == 2.1.1,
                       bytestring == 0.12.1.0,
-                      directory == 1.3.8.3
+                      directory == 1.3.8.3,
+                      QuadTree
+                    
+
 
     -- Directories containing source files.
     hs-source-dirs:   app
