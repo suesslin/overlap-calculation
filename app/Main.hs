@@ -95,6 +95,9 @@ instance FromJSON Interview where
                   <*> v .: "cart"
     parseJSON _ = fail "Couldn't parse Interview"
 
+-- Count multiple appearances of the exact same touch point
+type TpAppCount = Int
+
 main :: IO ()
 main = do
     files <- listDirectory "data"
@@ -124,12 +127,11 @@ main = do
     -- Simulated by taking all tps over all uis (without traces)
     let tpsAdaptiveNoTr = tpsBnoTr ++ tpsRhNoTr ++ tpsRvNoTr
 
-    -- Create tree 
-    let tree tps = foldl (\t (Coordinate coord) -> setLocation coord True t) (makeTree (1920,1080) False) tps
-
+    -- Create tree given set of touch points
+    let tree tps = foldl (\t (Coordinate coord) -> setLocation coord (increasedTpAppCount coord t) t) (makeTree (1920,1080) 0) tps where increasedTpAppCount c tree  = (getLocation c tree) + 1
+            
     let staticTree = tree tpsStaticNoTr
     let adaptiveTree = tree tpsAdaptiveNoTr
-
 
     -- Breaks down into tiles
     -- Tiles are of type (a, Region), or (a, (Int, Int, Int, Int))
@@ -154,9 +156,3 @@ main = do
 decodeInterview :: FilePath -> IO (Either String Interview)
 decodeInterview path = do
     return . eitherDecode =<< B.readFile path 
-
--- regionDepth :: Region -> Int
--- regionDepth (xMin, yMin, xMax, yMax) 
---     = .
---         where width = xMax - xMin
---               height = yMax - yMin
